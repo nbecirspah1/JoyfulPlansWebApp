@@ -1,5 +1,6 @@
 import React from "react";
 import './HomePage.css';
+import { Link } from 'react-router-dom';
 import pozadina from '../assets/pozadina.jpg'
 import logo2 from '../assets/logo2.png'
 
@@ -47,9 +48,9 @@ function HomePage() {
         {/* </svg> */}
         <div className="container">
           <div className="carousel-caption text-start">
-            <h1>Example headline.</h1>
-            <p>Some representative placeholder content for the first slide of the carousel.</p>
-            <p><a className="btn btn-lg btn-primary" href="#">Sign up today</a></p>
+            <h1>REGISTRACIJA</h1>
+            <p>Registruj se kako bi počeo koristiti aplikaciju.</p>
+            <p><a className="btn btn-lg btn-primary" href="/signup">Registruj se danas</a></p>
           </div>
         </div>
       </div>
@@ -60,9 +61,9 @@ function HomePage() {
         {/* </svg> */}
         <div className="container">
           <div className="carousel-caption">
-            <h1>Another example headline.</h1>
-            <p>Some representative placeholder content for the second slide of the carousel.</p>
-            <p><a className="btn btn-lg btn-primary" href="#">Learn more</a></p>
+            <h1>PRIJAVA</h1>
+            <p>Prijavi se kako bi nastavio koristiti aplikaciju</p>
+            <p><a className="btn btn-lg btn-primary" href="/login">Prijavi se ovdje</a></p>
           </div>
         </div>
       </div>
@@ -73,9 +74,9 @@ function HomePage() {
         {/* </svg> */}
         <div className="container">
           <div className="carousel-caption text-end">
-            <h1>One more for good measure.</h1>
-            <p>Some representative placeholder content for the third slide of this carousel.</p>
-            <p><a className="btn btn-lg btn-primary" href="#">Browse gallery</a></p>
+            <h1>O NAMA </h1>
+            <p>Pogledaj detatljne informacije o našoj aplikaciji</p>
+            <p><a className="btn btn-lg btn-primary" href="/aboutus">O nama</a></p>
           </div>
         </div>
       </div>
