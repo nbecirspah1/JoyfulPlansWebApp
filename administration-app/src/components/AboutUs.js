@@ -11,7 +11,7 @@ const AboutUsPage = () => {
       <Row>
       <Col>
   <h2>O NAŠOJ APLIKACIJI</h2>
-  <p className="text-justify">
+  <p className="text-center">
     Naša web aplikacija je planer dizajniran posebno za roditelje djece s Downovim sindromom.
     Naš je cilj pružiti alat jednostavan za korištenje koji roditeljima omogućuje postavljanje zadataka i praćenje aktivnosti svog djeteta sa svog mobilnog uređaja. 
     Uz naš planer, roditelji mogu osigurati da rutina njihovog djeteta ostane na pravom putu i da ono ispunjava svoje razvojne prekretnice.

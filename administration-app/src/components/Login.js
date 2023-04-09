@@ -137,9 +137,12 @@ function Login() {
           </div>
 
           <div className="checkbox mb-3">
-            <label>
-              <input type="checkbox" value="remember-me" /> Zapamti me
-            </label>
+          <label>
+               <a href="/reset">
+                  Zaboravili ste lozinku?
+                 </a>
+                   </label>
+
           </div>
           <button className="w-100 btn btn-lg btn-primary" type="submit">
             Prijavite se
