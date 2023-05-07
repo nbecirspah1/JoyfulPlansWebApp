@@ -1,8 +1,36 @@
-import React from "react";
+import React,  { useState } from "react";
 import './Login.css';
 import logo from '../assets/logo1.png'
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const validateEmail = (email) => {
+    // RegEx for email validation
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+     // Perform validation
+     if (!validateEmail(email)) {
+      setEmailError("Unesite validan e-mail u formatu example@example.com");
+      return;
+    }
+    if (!email.includes("@") || !email.includes(".")) {
+      setEmailError("Unesite ispravnu email adresu");
+    } else {
+      setEmailError("");
+    }
+    if (password.length < 8) {
+      setPasswordError("Lozinka mora imati najmanje 8 znakova");
+    } else {
+      setPasswordError("");
+    }
+
+  };
   return (
 
     <div id="login" className="text-center">
@@ -123,8 +151,10 @@ function Login() {
               className="form-control"
               id="floatingInput"
               placeholder="name@example.com"
+              value={email} onChange={(e) => setEmail(e.target.value)}
             />
             <label htmlFor="floatingInput">Email adresa</label>
+            <div style={{ color: "red" }}>{emailError}</div>
           </div>
           <div className="form-floating">
             <input
@@ -132,19 +162,21 @@ function Login() {
               className="form-control"
               id="floatingPassword"
               placeholder="Password"
+              value={password} onChange={(e) => setPassword(e.target.value)}
             />
             <label htmlFor="floatingPassword">Lozinka</label>
+            <div style={{ color: "red" }}>{passwordError}</div>
           </div>
 
           <div className="checkbox mb-3">
           <label>
-               <a href="/reset">
+               <a href="/2fa">
                   Zaboravili ste lozinku?
                  </a>
                    </label>
 
           </div>
-          <button className="w-100 btn btn-lg btn-primary" type="submit">
+          <button className="w-100 btn btn-lg btn-primary" type="submit" onClick={handleSubmit}>
             Prijavite se
           </button>
         </form>

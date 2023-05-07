@@ -5,6 +5,7 @@ import Signup from './components/Signup';
 import HomePage from './components/HomePage';
 import AboutUs from './components/AboutUs';
 import Reset from './components/Reset';
+import TwoFactorView from './components/TwoFactor';
 function App() {
   return (
     <Router>
@@ -16,6 +17,7 @@ function App() {
         <Route exact path="/signup" element = {<Signup />}/>
         <Route exact path="/aboutus" element = {<AboutUs />}/>
         <Route exact path="/reset" element = {<Reset />}/>
+        <Route exact path="/2fa" element = {<TwoFactorView />}/>
         {/* Add other routes here */}
       </Routes>
     </Router>

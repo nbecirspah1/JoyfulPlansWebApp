@@ -49,8 +49,8 @@ function HomePage() {
         <div className="container">
           <div className="carousel-caption text-start">
             <h1>REGISTRACIJA</h1>
-            <p>Registruj se kako bi počeo koristiti aplikaciju.</p>
-            <p><a className="btn btn-lg btn-primary" href="/signup">Registruj se danas</a></p>
+            <p>Registrujte se kako bi počeli koristiti aplikaciju.</p>
+            <p><a className="btn btn-lg btn-primary" href="/signup">Registrujte se danas</a></p>
           </div>
         </div>
       </div>
@@ -62,8 +62,8 @@ function HomePage() {
         <div className="container">
           <div className="carousel-caption">
             <h1>PRIJAVA</h1>
-            <p>Prijavi se kako bi nastavio koristiti aplikaciju</p>
-            <p><a className="btn btn-lg btn-primary" href="/login">Prijavi se ovdje</a></p>
+            <p>Prijavite se kako bi nastavio koristiti aplikaciju</p>
+            <p><a className="btn btn-lg btn-primary" href="/login">Prijavite se ovdje</a></p>
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ function HomePage() {
         <div className="container">
           <div className="carousel-caption text-end">
             <h1>O NAMA </h1>
-            <p>Pogledaj detatljne informacije o našoj aplikaciji</p>
+            <p>Pogledajte detaljne informacije o našoj aplikaciji</p>
             <p><a className="btn btn-lg btn-primary" href="/aboutus">O nama</a></p>
           </div>
         </div>
