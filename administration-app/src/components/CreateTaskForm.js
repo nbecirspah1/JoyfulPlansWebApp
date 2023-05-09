@@ -80,17 +80,9 @@ function CreateTaskForm({ showModal, closeModal, addTask }) {
           <Form.Group controlId="important">
             <Form.Check
               type="checkbox"
-              label="Important"
+              label="Označi kao bitan zadatak"
               checked={important}
               onChange={handleImportantChange}
-            />
-          </Form.Group>
-          <Form.Group controlId="completed">
-            <Form.Check
-              type="checkbox"
-              label="Completed"
-              checked={completed}
-              onChange={handleCompletedChange}
             />
           </Form.Group>
         </Form>
