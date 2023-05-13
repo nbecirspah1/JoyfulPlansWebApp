@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
+import './PlannerPage.css';
 import TaskItem from './TaskItem';
 
 
@@ -12,6 +13,7 @@ function PlannerPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [currentDate, setCurrentDate] = useState('');
+  const [importantTasks, setImportantTasks] = useState([]);
 
   useEffect(() => {
     const today = moment().locale('bs');
@@ -28,15 +30,26 @@ function PlannerPage() {
     setShowCreateForm(false);
   };
 
-  const addTask = (task) => {
+  const addTask = (task,important) => {
     setTasks([...tasks, task]);
-    closeCreateForm();
+  if (important) {
+    setImportantTasks([...importantTasks, task]);
+  }
+  closeCreateForm();
   };
-
-  const deleteTask = (index) => {
+  const deleteTaskFromLists = (index) => {
     const updatedTasks = [...tasks];
     updatedTasks.splice(index, 1);
     setTasks(updatedTasks);
+  
+    const updatedImportantTasks = importantTasks.filter(
+      (task, i) => i !== index
+    );
+    setImportantTasks(updatedImportantTasks);
+  };
+  
+  const deleteTask = (index) => {
+    deleteTaskFromLists(index);
   };
 
   const filterTasks = (status) => {
@@ -48,7 +61,7 @@ function PlannerPage() {
       case 'today':
         return tasks.filter((task) => task.status === 'today');
       case 'important':
-        return tasks.filter((task) => task.status === 'important');
+        return [...importantTasks, ...tasks.filter((task) => task.status === 'important')];
       case 'completed':
         return tasks.filter((task) => task.completed);
       case 'uncompleted':
@@ -62,6 +75,11 @@ function PlannerPage() {
     const updatedTasks = [...tasks];
     updatedTasks[index].completed = !updatedTasks[index].completed;
     setTasks(updatedTasks);
+    if (tasks[index].important) {
+      const updatedImportantTasks = [...importantTasks];
+      updatedImportantTasks[index].completed = !updatedImportantTasks[index].completed;
+      setImportantTasks(updatedImportantTasks);
+    }
   };
   return (
     <Container>
@@ -105,6 +123,7 @@ function PlannerPage() {
             <ul className="list-group">
                <div style={{ marginTop: '10px' }}></div>
               {filteredTasks().map((task, index) => (
+                 <li key={index} className="taskItem">
                  <Card key={index}>
                  <Card.Body>
                    <Card.Title>{task.title}</Card.Title>
@@ -121,6 +140,7 @@ function PlannerPage() {
                    </Button>
                  </Card.Body>
                </Card>
+               </li>
               ))}
             </ul>
           ) : (

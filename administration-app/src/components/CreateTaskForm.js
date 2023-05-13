@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 
-function CreateTaskForm({ showModal, closeModal, addTask }) {
+function CreateTaskForm({ showModal, closeModal, addTask,importantTasks }) {
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDate, setTaskDate] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [important, setImportant] = useState(false);
-  const [completed, setCompleted] = useState(false);
+
+  
 
   const handleTaskTitleChange = (e) => {
     setTaskTitle(e.target.value);
@@ -24,9 +25,6 @@ function CreateTaskForm({ showModal, closeModal, addTask }) {
     setImportant(!important);
   };
 
-  const handleCompletedChange = () => {
-    setCompleted(!completed);
-  };
 
   const handleSubmit = () => {
     const newTask = {
@@ -35,7 +33,7 @@ function CreateTaskForm({ showModal, closeModal, addTask }) {
       description: taskDescription,
     };
 
-    addTask(newTask, important, completed);
+    addTask(newTask, important,importantTasks);
     resetForm();
     closeModal();
   };
@@ -45,7 +43,6 @@ function CreateTaskForm({ showModal, closeModal, addTask }) {
     setTaskDate('');
     setTaskDescription('');
     setImportant(false);
-    setCompleted(false);
   };
 
   const handleModalHide = () => {
