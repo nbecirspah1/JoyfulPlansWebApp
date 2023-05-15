@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import moment from 'moment';
 
 function CreateTaskForm({ showModal, closeModal, addTask,importantTasks }) {
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDate, setTaskDate] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [important, setImportant] = useState(false);
+  const [taskImage, setTaskImage] = useState(null); // novo
+
 
   
-
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];          // novo
+    setTaskImage(file);
+  };
   const handleTaskTitleChange = (e) => {
     setTaskTitle(e.target.value);
   };
@@ -27,10 +33,32 @@ function CreateTaskForm({ showModal, closeModal, addTask,importantTasks }) {
 
 
   const handleSubmit = () => {
+     // Provjera unosa naslova zadatka
+  if (taskTitle.trim() === '') {
+    alert('Unesite naslov zadatka');
+    return;
+  }
+   // Provjera unosa opisa zadatka
+   if (taskDescription.trim() === '') {
+    alert('Unesite opis zadatka');
+    return;
+  }
+  const today = moment().startOf('day');
+  const selectedDate = moment(taskDate);
+  if (!selectedDate.isValid()) {
+    alert('Unesite ispravan datum');
+    return;
+  }
+
+  if (selectedDate.isBefore(today)) {
+    alert('Unesite datum koji nije prošao');
+    return;
+  }
     const newTask = {
       title: taskTitle,
       date: taskDate,
       description: taskDescription,
+      image:taskImage
     };
 
     addTask(newTask, important,importantTasks);
@@ -43,6 +71,7 @@ function CreateTaskForm({ showModal, closeModal, addTask,importantTasks }) {
     setTaskDate('');
     setTaskDescription('');
     setImportant(false);
+    setTaskImage(null);
   };
 
   const handleModalHide = () => {
@@ -74,6 +103,11 @@ function CreateTaskForm({ showModal, closeModal, addTask,importantTasks }) {
               onChange={handleTaskDescriptionChange}
             />
           </Form.Group>
+          <Form.Group controlId="image">
+            <Form.Label>Slika</Form.Label>            
+          <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
+               </Form.Group>
+
           <Form.Group controlId="important">
             <Form.Check
               type="checkbox"

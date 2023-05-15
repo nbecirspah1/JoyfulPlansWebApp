@@ -1,3 +1,7 @@
 .taskItem {
     margin-bottom: 10px;
   }
+  .task-image-container {
+    max-width: 500px;
+    max-height: 500px;
+  }

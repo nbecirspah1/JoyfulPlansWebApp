@@ -5,7 +5,6 @@ import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
 import './PlannerPage.css';
-import TaskItem from './TaskItem';
 
 
 function PlannerPage() {
@@ -126,9 +125,17 @@ function PlannerPage() {
                  <li key={index} className="taskItem">
                  <Card key={index}>
                  <Card.Body>
-                   <Card.Title>{task.title}</Card.Title>
-                   <Card.Text>{task.description}</Card.Text>
-                   <Card.Text>Date: {task.date}</Card.Text>
+                   <Card.Title><strong>Naslov zadatka:</strong> {task.title}</Card.Title>
+                   <Card.Text><strong>Opis zadatka:</strong> {task.description}</Card.Text>
+                   <Card.Text><strong>Rok za izradu:</strong> (godina, mjesec, dan): {task.date}</Card.Text>
+                   <div className="task-image-container">
+                   {task.image && (
+      <>
+        <Card.Subtitle><strong>Slika zadatka:</strong></Card.Subtitle>
+        <Card.Img src={URL.createObjectURL(task.image)} alt="Slika zadatka" className="task-image" />
+      </>
+    )}
+                </div>
                    <Button
                      variant={task.completed ? 'success' : 'primary'}
                      onClick={() => toggleCompletion(index)}
@@ -155,4 +162,3 @@ function PlannerPage() {
 }
 
 export default PlannerPage;
-
