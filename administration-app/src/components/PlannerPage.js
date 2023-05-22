@@ -1,11 +1,11 @@
+// PlannerPage.js
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card,Modal, Nav  } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card,  Nav } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
 import './PlannerPage.css';
-
 
 function PlannerPage() {
   const [tasks, setTasks] = useState([]);
@@ -20,7 +20,6 @@ function PlannerPage() {
     setCurrentDate(formattedDate);
   }, []);
 
-
   const openCreateForm = () => {
     setShowCreateForm(true);
   };
@@ -29,26 +28,38 @@ function PlannerPage() {
     setShowCreateForm(false);
   };
 
-  const addTask = (task,important) => {
+  const addTask = (task) => {
     setTasks([...tasks, task]);
-  if (important) {
-    setImportantTasks([...importantTasks, task]);
-  }
-  closeCreateForm();
+    if (task.important) {
+      setImportantTasks([...importantTasks, task]);
+    }
+    closeCreateForm();
   };
-  const deleteTaskFromLists = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks.splice(index, 1);
+
+  const deleteTask = (taskId) => {
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(updatedTasks);
-  
-    const updatedImportantTasks = importantTasks.filter(
-      (task, i) => i !== index
-    );
+
+    const updatedImportantTasks = importantTasks.filter((task) => task.id !== taskId);
     setImportantTasks(updatedImportantTasks);
   };
-  
-  const deleteTask = (index) => {
-    deleteTaskFromLists(index);
+
+  const toggleCompletion = (taskId) => {
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === taskId) {
+        return { ...task, completed: !task.completed };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+
+    const updatedImportantTasks = importantTasks.map((task) => {
+      if (task.id === taskId) {
+        return { ...task, completed: !task.completed };
+      }
+      return task;
+    });
+    setImportantTasks(updatedImportantTasks);
   };
 
   const filterTasks = (status) => {
@@ -68,18 +79,8 @@ function PlannerPage() {
       default:
         return tasks;
     }
-  
   };
-  const toggleCompletion = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
-    if (tasks[index].important) {
-      const updatedImportantTasks = [...importantTasks];
-      updatedImportantTasks[index].completed = !updatedImportantTasks[index].completed;
-      setImportantTasks(updatedImportantTasks);
-    }
-  };
+
   return (
     <Container>
       <Row className="my-4">
@@ -92,7 +93,9 @@ function PlannerPage() {
       </Row>
       <Row>
         <Col>
-          <Button variant="primary" onClick={openCreateForm}>KREIRAJ ZADATAK</Button>
+          <Button variant="primary" onClick={openCreateForm}>
+            KREIRAJ ZADATAK
+          </Button>
         </Col>
       </Row>
       <Row className="my-4">
@@ -120,34 +123,42 @@ function PlannerPage() {
         <Col>
           {filteredTasks().length > 0 ? (
             <ul className="list-group">
-               <div style={{ marginTop: '10px' }}></div>
-              {filteredTasks().map((task, index) => (
-                 <li key={index} className="taskItem">
-                 <Card key={index}>
-                 <Card.Body>
-                   <Card.Title><strong>Naslov zadatka:</strong> {task.title}</Card.Title>
-                   <Card.Text><strong>Opis zadatka:</strong> {task.description}</Card.Text>
-                   <Card.Text><strong>Rok za izradu:</strong> (godina, mjesec, dan): {task.date}</Card.Text>
-                   <div className="task-image-container">
-                   {task.image && (
-      <>
-        <Card.Subtitle><strong>Slika zadatka:</strong></Card.Subtitle>
-        <Card.Img src={URL.createObjectURL(task.image)} alt="Slika zadatka" className="task-image" />
-      </>
-    )}
-                </div>
-                   <Button
-                     variant={task.completed ? 'success' : 'primary'}
-                     onClick={() => toggleCompletion(index)}
-                   >
-                     {task.completed ? 'Urađen' : 'Nije Urađen'}
-                   </Button>{' '}
-                   <Button variant="danger" onClick={() => deleteTask(index)}>
-                     Obriši zadatak 
-                   </Button>
-                 </Card.Body>
-               </Card>
-               </li>
+              <div style={{ marginTop: '10px' }}></div>
+              {filteredTasks().map((task) => (
+                <li key={task.id} className="taskItem">
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>
+                        <strong>Naslov zadatka:</strong> {task.title}
+                      </Card.Title>
+                      <Card.Text>
+                        <strong>Opis zadatka:</strong> {task.description}
+                      </Card.Text>
+                      <Card.Text>
+                        <strong>Rok za izradu:</strong> (godina, mjesec, dan): {task.date}
+                      </Card.Text>
+                      <div className="task-image-container">
+                        {task.image && (
+                          <>
+                            <Card.Subtitle>
+                              <strong>Slika zadatka:</strong>
+                            </Card.Subtitle>
+                            <Card.Img src={URL.createObjectURL(task.image)} alt="Slika zadatka" className="task-image" />
+                          </>
+                        )}
+                      </div>
+                      <Button
+                        variant={task.completed ? 'success' : 'primary'}
+                        onClick={() => toggleCompletion(task.id)}
+                      >
+                        {task.completed ? 'Urađen' : 'Nije Urađen'}
+                      </Button>{' '}
+                      <Button variant="danger" onClick={() => deleteTask(task.id)}>
+                        Obriši zadatak
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </li>
               ))}
             </ul>
           ) : (
@@ -156,7 +167,7 @@ function PlannerPage() {
         </Col>
       </Row>
 
-      <CreateTaskForm showModal={showCreateForm} closeModal={closeCreateForm} addTask={addTask} />
+      <CreateTaskForm showModal={showCreateForm} closeModal={closeCreateForm} addTask={addTask} importantTasks={importantTasks} />
     </Container>
   );
 }
