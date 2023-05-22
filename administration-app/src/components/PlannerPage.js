@@ -13,6 +13,8 @@ function PlannerPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [currentDate, setCurrentDate] = useState('');
   const [importantTasks, setImportantTasks] = useState([]);
+  const [todayTasks, setTodayTasks] = useState([]);
+
 
   useEffect(() => {
     const today = moment().locale('bs');
@@ -33,6 +35,12 @@ function PlannerPage() {
     if (task.important) {
       setImportantTasks([...importantTasks, task]);
     }
+    const today = moment().startOf('day');
+    const selectedDate = moment(task.date);
+   if (selectedDate.isSame(today, 'day')) {
+           setTodayTasks([...todayTasks, task]);
+}
+
     closeCreateForm();
   };
 
@@ -42,6 +50,8 @@ function PlannerPage() {
 
     const updatedImportantTasks = importantTasks.filter((task) => task.id !== taskId);
     setImportantTasks(updatedImportantTasks);
+    const updatedTodayTasks = todayTasks.filter((task) => task.id !== taskId);
+    setTodayTasks(updatedTodayTasks);
   };
 
   const toggleCompletion = (taskId) => {
@@ -60,6 +70,13 @@ function PlannerPage() {
       return task;
     });
     setImportantTasks(updatedImportantTasks);
+    const updatedTodayTasks = todayTasks.map((task) => {
+      if (task.id === taskId) {
+        return { ...task, completed: !task.completed };
+        }
+        return task;
+        });
+        setTodayTasks(updatedTodayTasks);
   };
 
   const filterTasks = (status) => {
@@ -69,7 +86,7 @@ function PlannerPage() {
   const filteredTasks = () => {
     switch (activeTab) {
       case 'today':
-        return tasks.filter((task) => task.status === 'today');
+        return todayTasks;
       case 'important':
         return [...importantTasks, ...tasks.filter((task) => task.status === 'important')];
       case 'completed':
