@@ -1,6 +1,5 @@
-// PlannerPage.js
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card,  Nav } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Nav, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
@@ -14,8 +13,8 @@ function PlannerPage() {
   const [currentDate, setCurrentDate] = useState('');
   const [importantTasks, setImportantTasks] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
-
-
+  const [showSubtasksModal, setShowSubtasksModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   useEffect(() => {
     const today = moment().locale('bs');
     const formattedDate = today.format('LL, dddd');
@@ -37,9 +36,9 @@ function PlannerPage() {
     }
     const today = moment().startOf('day');
     const selectedDate = moment(task.date);
-   if (selectedDate.isSame(today, 'day')) {
-           setTodayTasks([...todayTasks, task]);
-}
+    if (selectedDate.isSame(today, 'day')) {
+      setTodayTasks([...todayTasks, task]);
+    }
 
     closeCreateForm();
   };
@@ -73,10 +72,21 @@ function PlannerPage() {
     const updatedTodayTasks = todayTasks.map((task) => {
       if (task.id === taskId) {
         return { ...task, completed: !task.completed };
-        }
-        return task;
-        });
-        setTodayTasks(updatedTodayTasks);
+      }
+      return task;
+    });
+    setTodayTasks(updatedTodayTasks);
+  };
+
+  const showSubtasks = (taskId) => {
+    const task = tasks.find((task) => task.id === taskId);
+    setSelectedTask(task);
+    setShowSubtasksModal(true);
+  };
+
+  const closeSubtasksModal = () => {
+    setSelectedTask(null);
+    setShowSubtasksModal(false);
   };
 
   const filterTasks = (status) => {
@@ -170,9 +180,12 @@ function PlannerPage() {
                       >
                         {task.completed ? 'Urađen' : 'Nije Urađen'}
                       </Button>{' '}
+                      <Button variant="secondary" onClick={() => showSubtasks(task.id)}>
+                        Vidi podzadatke
+                        </Button>{' '}
                       <Button variant="danger" onClick={() => deleteTask(task.id)}>
                         Obriši zadatak
-                      </Button>
+                      </Button>{' '}
                     </Card.Body>
                   </Card>
                 </li>
@@ -184,6 +197,29 @@ function PlannerPage() {
         </Col>
       </Row>
 
+      <Modal show={showSubtasksModal} onHide={closeSubtasksModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Podzadaci za {selectedTask && selectedTask.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedTask &&
+            selectedTask.subtasks.map((subtask) => (
+              <li key={subtask.id}>
+               <Card className='subtaskItem'>
+                <Card.Body>
+                  <Card.Title>{subtask.title}</Card.Title>
+                  <Card.Text>{subtask.description}</Card.Text>
+                  </Card.Body>
+               </Card>
+               </li>
+            ))}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeSubtasksModal}>
+            Zatvori
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <CreateTaskForm showModal={showCreateForm} closeModal={closeCreateForm} addTask={addTask} importantTasks={importantTasks} />
     </Container>
   );

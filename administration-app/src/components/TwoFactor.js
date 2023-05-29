@@ -36,8 +36,8 @@ function TwoFactor() {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <Form className="card p-3">
-        <h2 className="text-info text-center mb-4">2FA Security</h2>
-        <p className="text-center mb-4">Enter 6-digit code from your authenticator app.</p>
+        <h2 className="text-info text-center mb-4">Kod za promjenu šifre</h2>
+        <p className="text-center mb-4">Unesite 6-cifreni kod koji ste dobili u e-mail poruci.</p>
         <div className="d-flex justify-content-center">
           {[...Array(6)].map((_, index) => (
             <Form.Control

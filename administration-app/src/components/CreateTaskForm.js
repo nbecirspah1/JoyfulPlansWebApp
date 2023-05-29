@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import moment from 'moment';
+import TaskItem from './TaskItem';
+
 
 function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   const [taskTitle, setTaskTitle] = useState('');
@@ -10,7 +12,23 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   const [important, setImportant] = useState(false);
   const [taskImage, setTaskImage] = useState(null); // new
   const [taskId, setTaskId] = useState(1); // new
-
+  const [subtasks, setSubtasks] = useState([]);
+  const [showSubtaskModal, setShowSubtaskModal] = useState(false);
+  
+  const closeSubtaskModal = () => {
+    setShowSubtaskModal(false);
+  };
+  
+  
+  const addSubtask = (subtask) => {
+    if (subtasks.length >= 10) {
+      alert('Dostigli ste maksimalan broj podzadataka za ovaj glavni zadatak.');
+      return;
+    }
+  
+    setSubtasks((prevSubtasks) => [...prevSubtasks, subtask]);
+  };
+  
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     setTaskImage(file);
@@ -63,12 +81,14 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
       image: taskImage,
       completed: false,
       important: important,
+      subtasks: subtasks,
     };
     console.log('Novi zadatak:', newTask);
     addTask(newTask);
     resetForm();
     closeModal();
     setTaskId(taskId + 1);
+    setSubtasks([]);
   };
 
   const resetForm = () => {
@@ -120,6 +140,9 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
               onChange={handleImportantChange}
             />
           </Form.Group>
+          <Form.Group controlId='subtask'>
+           <TaskItem addSubtask={addSubtask} closeModal={closeSubtaskModal} openSubtaskModal={showSubtaskModal} />
+        </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>

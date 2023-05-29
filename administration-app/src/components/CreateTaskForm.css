@@ -1,0 +1,33 @@
+/* CreateTaskForm.css */
+.create-task-form {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .task-form-left {
+    flex: 1;
+  }
+  
+  .task-form-right {
+    flex: 1;
+    margin-left: 20px;
+  }
+  
+  .subtasks-list {
+    margin-top: 10px;
+  }
+  
+  .subtask-item {
+    margin-bottom: 10px;
+  }
+  
+  .subtask-item-title {
+    font-weight: bold;
+  }
+  
+  .subtask-item-description {
+    margin-bottom: 5px;
+  }
+  
+  /* Adjust the styles as needed to fit your design */
+  

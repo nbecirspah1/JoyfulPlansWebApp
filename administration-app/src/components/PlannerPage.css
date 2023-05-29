@@ -5,3 +5,6 @@
     max-width: 500px;
     max-height: 500px;
   }
+  .subtaskItem{
+    margin-bottom: 5px;
+  }

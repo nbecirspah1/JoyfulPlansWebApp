@@ -1,40 +1,48 @@
-import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import React, { useState } from "react";
 
-function SubtaskForm({ addSubtask }) {
-  const [subtaskTitle, setSubtaskTitle] = useState('');
+const SubTaskForm = ({ subtaskList, onSubtaskListChange }) => {
+  const [subtaskTitle, setSubtaskTitle] = useState("");
+  const [subtaskDescription, setSubtaskDescription] = useState("");
+  const [subtaskImage, setSubtaskImage] = useState("");
 
-  const handleSubtaskTitleChange = (e) => {
-    setSubtaskTitle(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubtaskSubmit = (e) => {
     e.preventDefault();
-    if (subtaskTitle.trim() === '') {
-      alert('Unesite naslov podzadatka');
-      return;
-    }
 
+    // Kreiramo novi podzadatak
     const newSubtask = {
       title: subtaskTitle,
-      completed: false,
+      description: subtaskDescription,
+      image: subtaskImage,
     };
 
-    addSubtask(newSubtask);
-    setSubtaskTitle('');
+    // Ažuriramo listu podzadataka
+    const updatedSubtaskList = [...subtaskList, newSubtask];
+    onSubtaskListChange(updatedSubtaskList);
+
+    // Resetujemo polja forme za podzadatak
+    setSubtaskTitle("");
+    setSubtaskDescription("");
+    setSubtaskImage("");
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Form.Group controlId="subtaskTitle">
-        <Form.Label>Naslov podzadatka</Form.Label>
-        <Form.Control type="text" value={subtaskTitle} onChange={handleSubtaskTitleChange} />
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Dodaj podzadatak
-      </Button>
-    </Form>
-  );
-}
+    <div>
+      <h3>Add Subtask</h3>
+      <form onSubmit={handleSubtaskSubmit}>
+        {/* Polja forme za podzadatak */}
+        {/* Polje za naslov podzadatka */}
+        <input type="text" value={subtaskTitle} onChange={(e) => setSubtaskTitle(e.target.value)} />
 
-export default SubtaskForm;
+        {/* Polje za opis podzadatka */}
+        <textarea value={subtaskDescription} onChange={(e) => setSubtaskDescription(e.target.value)} />
+
+        {/* Polje za upload slike podzadatka */}
+        <input type="file" onChange={(e) => setSubtaskImage(e.target.files[0])} />
+
+        <button type="submit">Add Subtask</button>
+      </form>
+    </div>
+  );
+};
+
+export default SubTaskForm;
