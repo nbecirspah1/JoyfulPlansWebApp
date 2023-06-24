@@ -5,7 +5,8 @@ import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
 import './PlannerPage.css';
-
+import { logout} from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 function PlannerPage() {
   const [tasks, setTasks] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -15,6 +16,7 @@ function PlannerPage() {
   const [todayTasks, setTodayTasks] = useState([]);
   const [showSubtasksModal, setShowSubtasksModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     const today = moment().locale('bs');
     const formattedDate = today.format('LL, dddd');
@@ -106,8 +108,16 @@ function PlannerPage() {
       default:
         return tasks;
     }
+    
   };
-
+  const handleLogout = async () => {
+		logout().then(res => {
+			localStorage.removeItem('token');
+			localStorage.removeItem('userId');
+			localStorage.clear();
+			navigate('/login');
+		});
+	};
   return (
     <Container>
       <Row className="my-4">
@@ -122,6 +132,11 @@ function PlannerPage() {
         <Col>
           <Button variant="primary" onClick={openCreateForm}>
             KREIRAJ ZADATAK
+          </Button>
+        </Col>
+        <Col className="text-end">
+          <Button variant="danger" onClick={handleLogout} >
+            Odjavi se
           </Button>
         </Col>
       </Row>
@@ -163,6 +178,9 @@ function PlannerPage() {
                       </Card.Text>
                       <Card.Text>
                         <strong>Rok za izradu:</strong> (godina, mjesec, dan): {task.date}
+                      </Card.Text>
+                      <Card.Text>
+                        <strong>Kategorija:</strong> {task.category}
                       </Card.Text>
                       <div className="task-image-container">
                         {task.image && (
@@ -209,6 +227,13 @@ function PlannerPage() {
                 <Card.Body>
                   <Card.Title>{subtask.title}</Card.Title>
                   <Card.Text>{subtask.description}</Card.Text>
+                  <Button
+                  variant={subtask.completed ? 'success' : 'danger'}
+                  title={subtask.completed ? 'Podzadatak je urađen' : 'Podzadatak nije urađen'}
+                 >
+               {subtask.completed ? <span>&#x2714;</span> : <span>&#x2716;</span>}
+</Button>
+
                   </Card.Body>
                </Card>
                </li>

@@ -2,18 +2,19 @@ import React,  { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../assets/logo1.png'
-
+import { login} from '../services/authService';
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate(); // Dodano
   const validateEmail = (email) => {
     // RegEx for email validation
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
      // Perform validation
      if (!validateEmail(email)) {
@@ -29,6 +30,19 @@ function Login() {
       setPasswordError("Lozinka mora imati najmanje 8 znakova");
     } else {
       setPasswordError("");
+    }
+    try{
+      const userData = {  email, password };
+      const response = await login(userData);
+      const token = response.data.token; // Pretpostavljam da je token dostupan u response.data
+
+  // Spremanje tokena u localStorage
+  window.localStorage.setItem('token', token);
+      console.log('Logiranje uspješno:', response.data);
+      navigate('/planner');
+    }
+    catch(error){
+      console.log('greška:', error);
     }
   };
   return (

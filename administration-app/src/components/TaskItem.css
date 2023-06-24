@@ -4,13 +4,21 @@
   background-color: #f8f9fa;
 }
 
-
-.subtask-modal {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 400px;
-  transform: translateX(calc(100% - 400px));
-  transition: transform .3s ease-in-out;
-
+.custom-modal {
+  /* Stilizacija modala specificnog za TaskItem */
+  background-color: #333;
+  color: #fff;
 }
+
+.custom-modal-title {
+  /* Stilizacija naslova modala specificnog za TaskItem */
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+}
+
+.custom-label {
+  /* Stilizacija labela specificnih za TaskItem */
+  color: black;
+}
+

@@ -14,6 +14,10 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   const [taskId, setTaskId] = useState(1); // new
   const [subtasks, setSubtasks] = useState([]);
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
+  const [taskCategory, setTaskCategory] = useState('');
+  const handleTaskCategoryChange = (e) => {
+    setTaskCategory(e.target.value);
+  };
   
   const closeSubtaskModal = () => {
     setShowSubtaskModal(false);
@@ -72,7 +76,10 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
       alert('Unesite datum koji nije prošao');
       return;
     }
-
+    if (taskCategory === '') {
+      alert('Odaberite kategoriju zadatka');
+      return;
+    }
     const newTask = {
       id: taskId,
       title: taskTitle,
@@ -81,6 +88,7 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
       image: taskImage,
       completed: false,
       important: important,
+      category: taskCategory, // Dodajemo kategoriju zadatka
       subtasks: subtasks,
     };
     console.log('Novi zadatak:', newTask);
@@ -89,6 +97,7 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
     closeModal();
     setTaskId(taskId + 1);
     setSubtasks([]);
+    setTaskCategory('');
   };
 
   const resetForm = () => {
@@ -97,6 +106,8 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
     setTaskDescription('');
     setImportant(false);
     setTaskImage(null);
+    setSubtasks([]);
+    setTaskCategory('');
   };
 
   const handleModalHide = () => {
@@ -132,6 +143,15 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
             <Form.Label>Slika</Form.Label>
             <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
           </Form.Group>
+          <Form.Group controlId="taskCategory">
+  <Form.Label>Kategorija zadatka</Form.Label>
+  <Form.Select value={taskCategory} onChange={handleTaskCategoryChange}>
+    <option value="">Odaberi kategoriju</option>
+    <option value="Kuća">Kuća</option>
+    <option value="Škola">Škola</option>
+    <option value="Higijena">Higijena</option>
+  </Form.Select>
+</Form.Group>
           <Form.Group controlId="important">
             <Form.Check
               type="checkbox"

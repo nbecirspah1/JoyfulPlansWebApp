@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
-import'./TaskItem.css';
-function TaskItem({ addSubtask, closeModal, openSubtaskModal}) {
+import './TaskItem.css';
+
+function TaskItem({ addSubtask, closeModal, openSubtaskModal }) {
   const [subtaskTitle, setSubtaskTitle] = useState('');
   const [subtaskDescription, setSubtaskDescription] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [subtaskCount, setSubtaskCount] = useState(0);
-  const [subTaskId, setSubTaskId] = useState(1); // new
+  const [subTaskId, setSubTaskId] = useState(1);
+
   const handleSubtaskTitleChange = (e) => {
     setSubtaskTitle(e.target.value);
   };
@@ -28,25 +30,24 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal}) {
     }
 
     const newSubtask = {
-      id:subTaskId,
+      id: subTaskId,
       title: subtaskTitle,
       description: subtaskDescription,
+      completed:false 
     };
 
     addSubtask(newSubtask);
     resetForm();
     closeModal();
-     // Prikazivanje povratne reakcije
-     setShowSuccessMessage(true);
-     setSubtaskCount(subtaskCount + 1);
-     setSubTaskId(subTaskId+1);
+    setShowSuccessMessage(true);
+    setSubtaskCount(subtaskCount + 1);
+    setSubTaskId(subTaskId + 1);
   };
 
   const resetForm = () => {
     setSubtaskTitle('');
     setSubtaskDescription('');
   };
-  
 
   const handleModalHide = () => {
     resetForm();
@@ -57,20 +58,20 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal}) {
   return (
     <div className="task-item">
       <Button variant="primary" onClick={() => setShowModal(true)}>
-        Dodaj podzadatak
+        Dodaj podzadatke
       </Button>
-      <Modal show={showModal} onHide={handleModalHide}   className="subtask-modal">
+      <Modal show={showModal} onHide={handleModalHide} centered className="custom-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Dodaj podzadatak</Modal.Title>
+          <Modal.Title className="custom-modal-title">Dodaj podzadatak</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group controlId="subtaskTitle">
-              <Form.Label>Naslov podzadatka</Form.Label>
+              <Form.Label className="custom-label">Naslov podzadatka</Form.Label>
               <Form.Control type="text" value={subtaskTitle} onChange={handleSubtaskTitleChange} />
             </Form.Group>
             <Form.Group controlId="subtaskDescription">
-              <Form.Label>Opis podzadatka</Form.Label>
+              <Form.Label className="custom-label">Opis podzadatka</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -78,16 +79,16 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal}) {
                 onChange={handleSubtaskDescriptionChange}
               />
             </Form.Group>
-{showSuccessMessage && (
-        <Alert variant="success" onClose={() => setShowSuccessMessage(false)} dismissible>
-          Uspješno ste kreirali korak {subtaskCount}
-        </Alert>
-      )}
+            {showSuccessMessage && (
+              <Alert variant="success" onClose={() => setShowSuccessMessage(false)} dismissible>
+                Uspješno ste kreirali korak {subtaskCount}
+              </Alert>
+            )}
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleModalHide}>
-           Nazad
+           Završi sa krerianjem
           </Button>
           <Button variant="primary" onClick={handleAddSubtask}>
             Dodaj podzadatak

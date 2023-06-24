@@ -1,7 +1,8 @@
 import React , { useState } from "react";
 import logo from '../assets/logo2.png';
+import { signup} from '../services/authService';
 function Signup(){
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -9,19 +10,21 @@ function Signup(){
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordConfirmationError, setPasswordConfirmationError] = useState("");
+  const [childName, setChildName] = useState("");
+  const [childNameError,setChildNameError]=useState("");
   const validateEmail = (email) => {
     // RegEx for email validation
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
      // Perform validation
      if (!validateEmail(email)) {
       setEmailError("Unesite validan e-mail u formatu example@example.com");
       return;
     }
-    if (name === "") {
+    if (username === "") {
       setNameError("Unesite validno ime");
     } else {
       setNameError("");
@@ -30,6 +33,11 @@ function Signup(){
       setEmailError("Unesite ispravnu email adresu");
     } else {
       setEmailError("");
+    }
+    if (childName === "") {
+      setChildNameError("Unesite validno ime");
+    } else {
+      setChildNameError("");
     }
     if (password.length < 8) {
       setPasswordError("Lozinka mora imati najmanje 8 znakova");
@@ -40,6 +48,20 @@ function Signup(){
       setPasswordConfirmationError("Ponovite ispravnu lozinku");
     } else {
       setPasswordConfirmationError("");
+    }
+    try {
+      // Poziv funkcije za registraciju korisnika
+      const userData = { username, email, password, childName };
+      const response = await signup(userData);
+      console.log('Registracija uspješna:', response.data.code);
+      // Nastavak logike nakon uspešne registracije
+      window.alert("Uspješna registracija, kod za vaše dijete je: " + response.data.code);
+      // Preusmjeravanje na /login rutu
+      window.location.href = "/login";
+    } catch (error) {
+      console.log('Greška prilikom registracije:', error);
+      // Obrada greške pri registraciji
+      window.alert("Registracija neuspješna, pokušaj ponovo ")
     }
   };
     return(
@@ -59,7 +81,7 @@ function Signup(){
                         <div className="d-flex flex-row align-items-center mb-4">
                           <i className="fas fa-user fa-lg me-3 fa-fw"></i>
                           <div className="form-outline flex-fill mb-0">
-                            <input type="text" id="form3Example1c" className="form-control" value={name} onChange={(e) => setName(e.target.value)}/>
+                            <input type="text" id="form3Example1c" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)}/>
                             <label className="form-label" htmlFor="form3Example1c">Vaše ime</label>
                             <div style={{ color: "red" }}>{nameError}</div>
                           </div>
@@ -73,12 +95,20 @@ function Signup(){
                             <div style={{ color: "red" }}>{emailError}</div>
                           </div>
                         </div>
+                        <div className="d-flex flex-row align-items-center mb-4">
+                          <i className="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                          <div className="form-outline flex-fill mb-0">
+                            <input type="text" id="form3Example4c" className="form-control" value={childName} onChange={(e) => setChildName(e.target.value)}/>
+                            <label className="form-label" htmlFor="form3Example4c">Ime Vašeg djeteta</label>
+                            <div style={{ color: "red" }}>{childNameError}</div>
+                          </div>
+                        </div>
       
                         <div className="d-flex flex-row align-items-center mb-4">
                           <i className="fas fa-lock fa-lg me-3 fa-fw"></i>
                           <div className="form-outline flex-fill mb-0">
-                            <input type="password" id="form3Example4c" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
-                            <label className="form-label" htmlFor="form3Example4c">Lozinka</label>
+                            <input type="password" id="form3Example5c" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <label className="form-label" htmlFor="form3Example5c">Lozinka</label>
                             <div style={{ color: "red" }}>{passwordError}</div>
                           </div>
                         </div>
@@ -86,8 +116,8 @@ function Signup(){
                         <div className="d-flex flex-row align-items-center mb-4">
                           <i className="fas fa-key fa-lg me-3 fa-fw"></i>
                           <div className="form-outline flex-fill mb-0">
-                            <input type="password" id="form3Example4cd" className="form-control" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)}/>
-                            <label className="form-label" htmlFor="form3Example4c">Ponovo unesite vašu lozinku</label>
+                            <input type="password" id="form3Example6cd" className="form-control" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)}/>
+                            <label className="form-label" htmlFor="form3Example6c">Ponovo unesite vašu lozinku</label>
                             <div style={{ color: "red" }}>{passwordConfirmationError}</div>
                           </div>
                         </div>
