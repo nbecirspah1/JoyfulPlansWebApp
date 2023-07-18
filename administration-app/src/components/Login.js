@@ -42,7 +42,9 @@ function Login() {
       navigate('/planner');
     }
     catch(error){
+
       console.log('greška:', error);
+      setPasswordError("Pogrešan e-mail ili lozinka");
     }
   };
   return (
@@ -101,8 +103,8 @@ function Login() {
 
           <div className="checkbox mb-3">
           <label>
-               <a href="/2fa">
-                  Zaboravili ste lozinku?
+               <a href="/signup">
+                Nemate krerian račun?
                  </a>
                    </label>
 

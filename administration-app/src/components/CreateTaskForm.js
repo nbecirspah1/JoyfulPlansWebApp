@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import moment from 'moment';
 import TaskItem from './TaskItem';
+import { addT,addSub, uploadTask } from '../services/authService';
 
 
 function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
@@ -11,8 +12,9 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   const [taskDescription, setTaskDescription] = useState('');
   const [important, setImportant] = useState(false);
   const [taskImage, setTaskImage] = useState(null); // new
-  const [taskId, setTaskId] = useState(1); // new
+  const [taskId, setTaskId] = useState(564); // new
   const [subtasks, setSubtasks] = useState([]);
+  const[subtasksData,setSubtasksData]=useState([]);
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
   const [taskCategory, setTaskCategory] = useState('');
   const handleTaskCategoryChange = (e) => {
@@ -31,6 +33,12 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
     }
   
     setSubtasks((prevSubtasks) => [...prevSubtasks, subtask]);
+    let taskData={
+      task_name: subtask.name,
+      description:subtask.description,
+      done: subtask.done
+    };
+    setSubtasksData((prevSubtasks)=>[...prevSubtasks, taskData]);
   };
   
   const handleImageChange = (event) => {
@@ -54,7 +62,7 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
     setImportant(!important);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit =async () => {
     if (taskTitle.trim() === '') {
       alert('Unesite naslov zadatka');
       return;
@@ -92,12 +100,35 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
       subtasks: subtasks,
     };
     console.log('Novi zadatak:', newTask);
+    console.log( subtasksData);
+    try {
+      const task={
+        task_name: newTask.title,
+        description: newTask.description,
+        deadline: newTask.date,
+        category:newTask.category,
+        important:newTask.important,
+        audio_duration:0
+      };
+      const response = await addT(task);
+      console.log('Odgovor sa servera:', response.data);
+      if (taskImage) {
+        const responseImage = await uploadTask(response.data.task_id, taskImage);
+        console.log('Odgovor sa servera za sliku:', responseImage.data);
+      }
+      const response1=await addSub(response.data.task_id,subtasksData);
+     console.log('Odgovor sa servera:', response1.data);
+    } catch (error) {
+      console.error('Greška prilikom dodavanja zadatka:', error);
+      // Ovdje možete dodati logiku za obradu greške
+    }
     addTask(newTask);
     resetForm();
     closeModal();
     setTaskId(taskId + 1);
     setSubtasks([]);
     setTaskCategory('');
+
   };
 
   const resetForm = () => {

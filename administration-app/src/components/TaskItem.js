@@ -8,7 +8,7 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal }) {
   const [showModal, setShowModal] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [subtaskCount, setSubtaskCount] = useState(0);
-  const [subTaskId, setSubTaskId] = useState(1);
+  const [subTaskId, setSubTaskId] = useState(567);
 
   const handleSubtaskTitleChange = (e) => {
     setSubtaskTitle(e.target.value);
@@ -30,10 +30,10 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal }) {
     }
 
     const newSubtask = {
-      id: subTaskId,
-      title: subtaskTitle,
+     subtask_id: subTaskId,
+      name: subtaskTitle,
       description: subtaskDescription,
-      completed:false 
+      done:false 
     };
 
     addSubtask(newSubtask);

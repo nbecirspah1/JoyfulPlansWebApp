@@ -64,6 +64,7 @@ function Signup(){
       window.alert("Registracija neuspješna, pokušaj ponovo ")
     }
   };
+
     return(
       <section className="vh-100" style={{backgroundColor: '#eee'}}>
         <div className="container h-100">
@@ -139,6 +140,7 @@ function Signup(){
           </div>
         </div>
       </section>
+       
     );
 }
 export default Signup;

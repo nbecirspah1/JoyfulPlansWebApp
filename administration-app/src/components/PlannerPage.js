@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Container, Row, Col, Button, Card, Nav, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
 import './PlannerPage.css';
-import { logout} from '../services/authService';
+import { logout, getUser,  getTasks,getSub} from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 function PlannerPage() {
+  useEffect(()=>{
+    fetchTasks();
+  },[]);
   const [tasks, setTasks] = useState([]);
+  const [isFetching, setIsFetching] = useState(false); // Dodano stanje za praćenje dovršenosti asinkronih poziva
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [currentDate, setCurrentDate] = useState('');
@@ -16,13 +20,25 @@ function PlannerPage() {
   const [todayTasks, setTodayTasks] = useState([]);
   const [showSubtasksModal, setShowSubtasksModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [username, setUsername] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
     const today = moment().locale('bs');
     const formattedDate = today.format('LL, dddd');
     setCurrentDate(formattedDate);
   }, []);
-
+  useEffect(() => {
+    getUser()
+      .then((response) => {
+        setUsername(response.data.name);
+      })
+      .catch((error) => {
+        console.error('Error fetching username:', error);
+        // Handle the error
+      });
+      console.log("Poziva se jednom");
+  }, []);
+ 
   const openCreateForm = () => {
     setShowCreateForm(true);
   };
@@ -55,7 +71,7 @@ function PlannerPage() {
     setTodayTasks(updatedTodayTasks);
   };
 
-  const toggleCompletion = (taskId) => {
+  /* const toggleCompletion = (taskId) => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         return { ...task, completed: !task.completed };
@@ -79,7 +95,7 @@ function PlannerPage() {
     });
     setTodayTasks(updatedTodayTasks);
   };
-
+*/
   const showSubtasks = (taskId) => {
     const task = tasks.find((task) => task.id === taskId);
     setSelectedTask(task);
@@ -96,6 +112,9 @@ function PlannerPage() {
   };
 
   const filteredTasks = () => {
+    if (isFetching) {
+      return []; // Ako su asinkroni pozivi još uvijek u tijeku, vraćamo prazan niz
+    }
     switch (activeTab) {
       case 'today':
         return todayTasks;
@@ -105,11 +124,91 @@ function PlannerPage() {
         return tasks.filter((task) => task.completed);
       case 'uncompleted':
         return tasks.filter((task) => !task.completed);
+        case 'all':
+        return tasks;
       default:
         return tasks;
     }
     
   };
+  const fetchSubtasks = async (task) => {
+    try {
+      const response = await getSub(task.id);
+      const subtasksData = response.data;
+      for (let i = 0; i < subtasksData.length; i++) {
+        task.subtasks.push(subtasksData[i]);
+      }
+      let allDone = true;
+      for (let i = 0; i < task.subtasks.length; i++) {
+        if (task.subtasks[i].done === false) {
+          allDone = false;
+          break;
+        }
+      }
+      if (allDone) {
+        task.completed = true;
+      }
+      if (task.subtasks.length === 0) {
+        task.completed = false;
+      }
+      return task.completed;
+    } catch (error) {
+      console.error('Error fetching subtasks:', error);
+      return false;
+    }
+  };
+  
+  const fetchTasks = async () => {
+    try {
+      setIsFetching(true);// Postavljamo isFetching na true prije početka asinkronih poziva
+      const response = await getTasks();
+      const tasksData = response.data;
+      const fetchedTasks = []; // Koristimo privremeni niz za pohranu dohvaćenih zadataka
+      console.log(tasksData);
+      for (let i = 0; i < tasksData.length; i++) {
+        var deadline = moment(tasksData[i].deadline).format('YYYY-MM-DD');
+        var task = {
+          id: tasksData[i].task_id,
+          title: tasksData[i].task_name,
+          description: tasksData[i].description,
+        image:undefined,
+          date: deadline,
+          category: tasksData[i].category,
+          important: tasksData[i].important,
+          completed: false,
+          subtasks: []
+        };
+        if(tasksData[i].task_image){
+          const base64WithoutPrefix= tasksData[i].task_image.substring(
+            tasksData[i].task_image.indexOf(",") + 1
+          );
+          task.image= `https://drive.google.com/uc?export=view&id=${base64WithoutPrefix}`;
+        }
+        
+        console.log(task);
+        await fetchSubtasks(task); // Pričekaj da se dovrši asinkroni poziv
+        console.log(task.subtasks.length);
+        tasks.push(task);
+        fetchedTasks.push(task);// Dodajemo task u privremeni niz
+        if (task.important) {
+          importantTasks.push(task);
+        }
+        const today = moment().startOf('day');
+        const selectedDate = moment(task.date);
+        if (selectedDate.isSame(today, 'day')) {
+          todayTasks.push(task);
+        }
+        console.log(task.completed);
+      }
+      console.log(tasks);
+      setTasks(fetchedTasks); // Postavljamo sve dohvaćene zadatke u stanje
+      setIsFetching(false); // Postavljamo isFetching na false nakon što su asinkroni pozivi dovršeni
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+  
+ 
   const handleLogout = async () => {
 		logout().then(res => {
 			localStorage.removeItem('token');
@@ -118,11 +217,18 @@ function PlannerPage() {
 			navigate('/login');
 		});
 	};
+  function isLocalURL(url) {
+    if(url instanceof File) return true;
+    else 
+    return false;
+  }
+  
+  
   return (
     <Container>
       <Row className="my-4">
         <Col>
-          <h3>RODITELJSKI PLANER</h3>
+        <h3>{`Zdravo, ${username}`}</h3>
         </Col>
         <Col className="text-end">
           <h4>{currentDate}</h4>
@@ -188,13 +294,19 @@ function PlannerPage() {
                             <Card.Subtitle>
                               <strong>Slika zadatka:</strong>
                             </Card.Subtitle>
-                            <Card.Img src={URL.createObjectURL(task.image)} alt="Slika zadatka" className="task-image" />
+                            <Card.Body>
+                            {isLocalURL(task.image) ? (
+        <Card.Img src={URL.createObjectURL(task.image)} alt="Slika zadatka" className="task-image" />
+      ) : (
+        <Card.Img src={task.image} alt="Slika zadatka" className="task-image" />
+      )}
+                            </Card.Body>
                           </>
                         )}
                       </div>
                       <Button
                         variant={task.completed ? 'success' : 'primary'}
-                        onClick={() => toggleCompletion(task.id)}
+                      //  onClick={() => toggleCompletion(task.id)}
                       >
                         {task.completed ? 'Urađen' : 'Nije Urađen'}
                       </Button>{' '}
@@ -222,16 +334,16 @@ function PlannerPage() {
         <Modal.Body>
           {selectedTask &&
             selectedTask.subtasks.map((subtask) => (
-              <li key={subtask.id}>
+              <li key={subtask.subtask_id}>
                <Card className='subtaskItem'>
                 <Card.Body>
-                  <Card.Title>{subtask.title}</Card.Title>
+                  <Card.Title>{subtask.name}</Card.Title>
                   <Card.Text>{subtask.description}</Card.Text>
                   <Button
-                  variant={subtask.completed ? 'success' : 'danger'}
-                  title={subtask.completed ? 'Podzadatak je urađen' : 'Podzadatak nije urađen'}
+                  variant={subtask.done ? 'success' : 'danger'}
+                  title={subtask.done ? 'Podzadatak je urađen' : 'Podzadatak nije urađen'}
                  >
-               {subtask.completed ? <span>&#x2714;</span> : <span>&#x2716;</span>}
+               {subtask.done ? <span>&#x2714;</span> : <span>&#x2716;</span>}
 </Button>
 
                   </Card.Body>
