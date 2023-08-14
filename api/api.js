@@ -131,7 +131,7 @@ app.post("/login", (req, res) => {
           const token = jwt.sign(
             { userId: user.id, email: user.email },
             "tajna_za_potpisivanje",
-            { expiresIn: "1h" } // Token će isteći za 1 sat
+            { expiresIn: "1h" } // Token će isteći za 1 sat  
           );
 
           // Sačuvaj access token u bazi podataka za datog korisnika
@@ -485,4 +485,133 @@ app.post('/uploadTaskImage/:id', upload.single('task'), (req, res) => {
  
   });
 });
+app.get('/childToken', (req, res)=>{
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+  const token = authorizationHeader.replace('Bearer ', '');
+  jwt.verify(token, 'tajna_za_potpisivanje', (err, decoded) => {
+    if (err) {
+      console.log(err.message);
+      res.status(401).send('Invalid token');
+      return;
+    }
+    const userId = decoded.userId;
+    const childQueryToken = `SELECT access_token FROM children WHERE parentid = ${userId}`;  
+     client.query(childQueryToken, (err, result) => {
+      if (!err) {
+        if (result.rows.length > 0) {
+          const child = result.rows[0];
+          const token= child.access_token
+          res.send(token);
+        } else {
+          res.status(404).send('Child not found');
+        }
+      } else {
+        console.log(err.message);
+        res.status(500).send('Error getting child');
+      }
+    });
+  });
+})
+// dijete
+app.post("/loginChild", (req, res) => {
+  const { code } = req.body;
+
+  const loginQuery = `SELECT * FROM children WHERE code = '${code}' `;
+
+  client.query(loginQuery, (err, result) => {
+    if (!err) {
+      if (result.rows.length > 0) {
+        // Generisanje access tokena
+        const user = result.rows[0];
+        const token = jwt.sign(
+          { userId: user.id, email: user.email },
+          "tajna_za_potpisivanje",
+          { expiresIn: "1h" } // Token će isteći za 1 sat
+        );
+
+        // Sačuvaj access token u bazi podataka za datog korisnika
+        const updateTokenQuery = `UPDATE children SET access_token = '${token}' WHERE id = ${user.id}`;
+            console.log("TOKEEEN ", updateTokenQuery)
+        client.query(updateTokenQuery, (err, result) => {
+          if (!err) {
+            // Remove the password field from the user object
+            delete user.password;
+            res.send({ user, token });
+          } else {
+            console.log(err.message);
+            res.status(500).send("Error saving access token");
+          }
+        });
+      } else {
+        res.status(401).send("Invalid email or password");
+      }
+    } else {
+      console.log(err.message);
+      res.status(500).send("Error logging in");
+    }
+  });
+});
+app.post("/logoutChild", (req, res) => {
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  const token = authorizationHeader.replace("Bearer ", "");
+
+  // Verify and decode the token
+  jwt.verify(token, "tajna_za_potpisivanje", (err, decoded) => {
+    if (err) {
+      console.log(err.message);
+      res.status(401).send("Invalid token");
+      return;
+    }
+
+    const userId = decoded.userId;
+    if(1){
+      const clearTokenQuery = `UPDATE children SET access_token = NULL WHERE id = ${userId}`;
+
+      client.query(clearTokenQuery, (err, result) => {
+        if (!err) {
+          res.send("Logout successful");
+          // Use the isParent value as needed in the server-side logic
+        } else {
+          console.log(err.message);
+          res.status(500).send("Error logging out");
+        }
+      });
+    }
+
+  });
+});
+app.delete('/deleteTask/:id', (req, res) => {
+  const taskId = req.params.id;
+
+  const deleteSubtasksQuery = `DELETE FROM subtasks WHERE task_id = ${taskId}`;
+  const deleteTaskQuery = `DELETE FROM tasks WHERE task_id = ${taskId}`;
+
+  client.query(deleteSubtasksQuery, (err, result) => {
+    if (err) {
+      console.log('Error deleting subtasks:', err.message);
+      res.status(500).send('Error deleting subtasks');
+      return;
+    }
+
+    client.query(deleteTaskQuery, (err, result) => {
+      if (err) {
+        console.log('Error deleting task:', err.message);
+        res.status(500).send('Error deleting task');
+        return;
+      }
+
+      res.send('Task and its subtasks deleted successfully');
+    });
+  });
+});
+
 client.connect();

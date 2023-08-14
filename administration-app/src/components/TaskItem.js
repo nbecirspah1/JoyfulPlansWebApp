@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
 import './TaskItem.css';
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function TaskItem({ addSubtask, closeModal, openSubtaskModal }) {
   const [subtaskTitle, setSubtaskTitle] = useState('');
@@ -20,12 +22,16 @@ function TaskItem({ addSubtask, closeModal, openSubtaskModal }) {
 
   const handleAddSubtask = () => {
     if (subtaskTitle.trim() === '') {
-      alert('Unesite naslov podzadatka');
+      toast.error('Unesite naslov podzadatka',{
+        position: toast.POSITION.TOP_CENTER,
+      });
       return;
     }
 
     if (subtaskDescription.trim() === '') {
-      alert('Unesite opis podzadatka');
+      toast.error('Unesite opis podzadatka',{
+        position: toast.POSITION.TOP_CENTER,
+      });
       return;
     }
 

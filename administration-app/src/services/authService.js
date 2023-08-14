@@ -89,4 +89,22 @@ export function signup(data) {
       },
     });
   }
+  export function getToken() {
+    return axios(`${API_URL}/childToken`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
+  }
+  export function deleteT(taskId) {
   
+    return axios.delete(`${API_URL}/deleteTask/${taskId}`,  {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      },
+    });
+  }

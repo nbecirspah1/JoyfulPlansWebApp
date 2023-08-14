@@ -1,6 +1,10 @@
 import React , { useState } from "react";
+//import { Alert } from 'react-bootstrap';
 import logo from '../assets/logo2.png';
 import { signup} from '../services/authService';
+import { ToastContainer, toast } from 'react-toastify';
+//import { Container } from 'react-bootstrap';
+import 'react-toastify/dist/ReactToastify.css';
 function Signup(){
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -12,6 +16,7 @@ function Signup(){
   const [passwordConfirmationError, setPasswordConfirmationError] = useState("");
   const [childName, setChildName] = useState("");
   const [childNameError,setChildNameError]=useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const validateEmail = (email) => {
     // RegEx for email validation
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,21 +56,41 @@ function Signup(){
     }
     try {
       // Poziv funkcije za registraciju korisnika
+      setIsLoading(true);
       const userData = { username, email, password, childName };
       const response = await signup(userData);
       console.log('Registracija uspješna:', response.data.code);
+      setIsLoading(false);
       // Nastavak logike nakon uspešne registracije
-      window.alert("Uspješna registracija, kod za vaše dijete je: " + response.data.code);
-      // Preusmjeravanje na /login rutu
-      window.location.href = "/login";
+      toast.success(
+        <div>
+          Uspješna registracija, <u>kod za vaše dijete je: <strong>{response.data.code}</strong></u>
+        </div>,
+        {
+          position: toast.POSITION.TOP_CENTER,
+          onClose: () => {
+            // Preusmjeravanje na /login rutu nakon što se zatvori tost
+            window.location.href = "/login";
+          }
+        }
+      );
     } catch (error) {
       console.log('Greška prilikom registracije:', error);
-      // Obrada greške pri registraciji
-      window.alert("Registracija neuspješna, pokušaj ponovo ")
+      setIsLoading(false);
+
+      toast.error(
+        <div>
+          Registracija neuspješna, pokušajte ponovo
+        </div>,
+        {
+          position: toast.POSITION.TOP_CENTER,
+        }
+      );
     }
   };
 
     return(
+     
       <section className="vh-100" style={{backgroundColor: '#eee'}}>
         <div className="container h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
@@ -139,8 +164,9 @@ function Signup(){
             </div>
           </div>
         </div>
+        <ToastContainer />
       </section>
-       
+      
     );
 }
 export default Signup;

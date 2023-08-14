@@ -5,8 +5,11 @@ import moment from 'moment';
 import 'moment/locale/bs'; // Uvoz lokalizacije za bosanski jezik
 import CreateTaskForm from './CreateTaskForm';
 import './PlannerPage.css';
-import { logout, getUser,  getTasks,getSub} from '../services/authService';
+import { logout, getUser,  getTasks,getSub, getToken, deleteT} from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function PlannerPage() {
   useEffect(()=>{
     fetchTasks();
@@ -19,8 +22,12 @@ function PlannerPage() {
   const [importantTasks, setImportantTasks] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
   const [showSubtasksModal, setShowSubtasksModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal]=useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [username, setUsername] = useState('');
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false); /////////////
+   // Stanje za praćenje autentifikacije djeteta
+   const [isChildLoggedIn, setIsChildLoggedIn] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     const today = moment().locale('bs');
@@ -38,7 +45,29 @@ function PlannerPage() {
       });
       console.log("Poziva se jednom");
   }, []);
- 
+ // useEffect za praćenje stanja autentifikacije djeteta
+ useEffect(() => {
+  getToken()
+    .then((response) => {
+      const token = response.data;
+      if (token) {
+        setIsChildLoggedIn(true);
+        toast.success('Dijete je uspješno prijavljeno na aplikaciju!', {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      } else {
+        setIsChildLoggedIn(false);
+        toast.info('Dijete trenutno ne koristi aplikaciju.', {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching token:', error);
+      setShowSessionExpiredModal(true);
+    });
+}, []);
+
   const openCreateForm = () => {
     setShowCreateForm(true);
   };
@@ -61,7 +90,14 @@ function PlannerPage() {
     closeCreateForm();
   };
 
-  const deleteTask = (taskId) => {
+  const deleteTask = async (taskId) => {
+    try{
+        const response =await deleteT(taskId);
+        console.log( response.data);
+    }
+    catch(error){
+      console.log("Error deleting Task", error);
+    }
     const updatedTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(updatedTasks);
 
@@ -69,6 +105,7 @@ function PlannerPage() {
     setImportantTasks(updatedImportantTasks);
     const updatedTodayTasks = todayTasks.filter((task) => task.id !== taskId);
     setTodayTasks(updatedTodayTasks);
+    setShowDeleteModal(false);
   };
 
   /* const toggleCompletion = (taskId) => {
@@ -101,12 +138,19 @@ function PlannerPage() {
     setSelectedTask(task);
     setShowSubtasksModal(true);
   };
+  const showDeletetask=(taskId)=>{
+    const task = tasks.find((task) => task.id === taskId);
+    setSelectedTask(task);
+    setShowDeleteModal(true);
+  }
 
   const closeSubtasksModal = () => {
     setSelectedTask(null);
     setShowSubtasksModal(false);
   };
-
+ const closeDeleteModal=()=>{
+  setShowDeleteModal(false);
+ }
   const filterTasks = (status) => {
     setActiveTab(status);
   };
@@ -134,7 +178,7 @@ function PlannerPage() {
   const fetchSubtasks = async (task) => {
     try {
       const response = await getSub(task.id);
-      const subtasksData = response.data;
+      const subtasksData = response.data.sort((a, b) => a.subtask_id - b.subtask_id);;
       for (let i = 0; i < subtasksData.length; i++) {
         task.subtasks.push(subtasksData[i]);
       }
@@ -151,7 +195,7 @@ function PlannerPage() {
       if (task.subtasks.length === 0) {
         task.completed = false;
       }
-      return task.completed;
+    
     } catch (error) {
       console.error('Error fetching subtasks:', error);
       return false;
@@ -210,12 +254,24 @@ function PlannerPage() {
   
  
   const handleLogout = async () => {
-		logout().then(res => {
-			localStorage.removeItem('token');
-			localStorage.removeItem('userId');
-			localStorage.clear();
-			navigate('/login');
-		});
+		try {
+      await logout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.clear();
+      navigate('/login');
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // Ako dobijemo 401 Unauthorized, otvaramo prozor "Your session has expired"
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.clear();
+        setShowSessionExpiredModal(true);
+      } else {
+        console.error('Logout error:', error);
+        // Obrada drugih grešaka koje nisu vezane za istek sesije
+      }
+    }
 	};
   function isLocalURL(url) {
     if(url instanceof File) return true;
@@ -313,7 +369,7 @@ function PlannerPage() {
                       <Button variant="secondary" onClick={() => showSubtasks(task.id)}>
                         Vidi podzadatke
                         </Button>{' '}
-                      <Button variant="danger" onClick={() => deleteTask(task.id)}>
+                      <Button variant="danger" onClick={() => showDeletetask(task.id)}>
                         Obriši zadatak
                       </Button>{' '}
                     </Card.Body>
@@ -357,9 +413,44 @@ function PlannerPage() {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal show={showDeleteModal} onHide={closeDeleteModal} backdrop="static" keyboard={false}>
+      <Modal.Header closeButton>
+        <Modal.Title>Potvrda brisanja</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Da li ste sigurni da želite izbrisati ovaj zadatak?
+        Ovaj zadatak će biti trajno izbrisan iz vašeg planera 
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={closeDeleteModal}>
+         Nazad
+        </Button>
+        {selectedTask ? (
+    <Button variant="danger" onClick={() => deleteTask(selectedTask.id)}>
+      Obriši
+    </Button>
+  ) : null}
+      </Modal.Footer>
+    </Modal>
       <CreateTaskForm showModal={showCreateForm} closeModal={closeCreateForm} addTask={addTask} importantTasks={importantTasks} />
+      <ToastContainer autoClose={false}/>
+      <Modal show={showSessionExpiredModal} >
+      <Modal.Header closeButton>
+        <Modal.Title>Vaša sesija je istekla</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Vaša sesija je istekla. Molimo vas da se prijavite ponovo.
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" onClick={() => navigate('/login')}>
+          Logiraj se ponovo
+        </Button>
+      </Modal.Footer>
+    </Modal>
     </Container>
+    
   );
+  
 }
 
 export default PlannerPage;

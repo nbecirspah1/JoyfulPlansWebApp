@@ -1,10 +1,11 @@
 // CreateTaskForm.js
 import React, { useState } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
+import { Button, Form, Modal, Container } from 'react-bootstrap';
 import moment from 'moment';
 import TaskItem from './TaskItem';
 import { addT,addSub, uploadTask } from '../services/authService';
-
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   const [taskTitle, setTaskTitle] = useState('');
@@ -64,28 +65,40 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
 
   const handleSubmit =async () => {
     if (taskTitle.trim() === '') {
-      alert('Unesite naslov zadatka');
+     toast.error('Unesite naslov zadatka',
+     {
+      position: toast.POSITION.TOP_CENTER,
+    });
       return;
     }
 
     if (taskDescription.trim() === '') {
-      alert('Unesite opis zadatka');
+     toast.error('Unesite opis zadatka',
+     {
+      position: toast.POSITION.TOP_CENTER,
+    });
       return;
     }
 
     const today = moment().startOf('day');
     const selectedDate = moment(taskDate);
     if (!selectedDate.isValid()) {
-      alert('Unesite ispravan datum');
+      toast.error('Unesite ispravan datum',{
+        position: toast.POSITION.TOP_CENTER,
+      });
       return;
     }
 
     if (selectedDate.isBefore(today)) {
-      alert('Unesite datum koji nije prošao');
+      toast.error('Unesite datum koji nije prošao',{
+        position: toast.POSITION.TOP_CENTER,
+      });
       return;
     }
     if (taskCategory === '') {
-      alert('Odaberite kategoriju zadatka');
+      toast.error('Odaberite kategoriju zadatka',{
+        position: toast.POSITION.TOP_CENTER,
+      });
       return;
     }
     const newTask = {
@@ -147,6 +160,7 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
   };
 
   return (
+    <Container>
     <Modal show={showModal} onHide={handleModalHide}>
       <Modal.Header closeButton>
         <Modal.Title>Dodaj novi zadatak</Modal.Title>
@@ -205,6 +219,7 @@ function CreateTaskForm({ showModal, closeModal, addTask, importantTasks }) {
         </Button>
       </Modal.Footer>
     </Modal>
+    </Container>
   );
 }
 
