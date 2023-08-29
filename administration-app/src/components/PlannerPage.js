@@ -43,7 +43,6 @@ function PlannerPage() {
         console.error('Error fetching username:', error);
         // Handle the error
       });
-      console.log("Poziva se jednom");
   }, []);
  // useEffect za praćenje stanja autentifikacije djeteta
  useEffect(() => {

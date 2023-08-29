@@ -66,16 +66,47 @@ app.get('/users', (req, res)=>{
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.delete('/users/:id', (req, res)=> {
-  let insertQuery = `delete from users where id=${req.params.id}`
+  const userId = req.params.id;
 
-  client.query(insertQuery, (err, result)=>{
-      if(!err){
-          res.send('Deletion was successful')
-      }
-      else{ console.log(err.message) }
-  })
-  client.end;
-})
+  // Početak transakcije
+  client.query('BEGIN', async (err) => {
+    if (err) {
+      console.error('Error beginning transaction:', err);
+      res.status(500).send('Internal server error');
+      return;
+    }
+
+    try {
+      // Prvo obrišite dijete iz tabele children
+      const deleteChildQuery = `DELETE FROM children WHERE parentid = $1`;
+      await client.query(deleteChildQuery, [userId]);
+
+      // Zatim obrišite korisnika iz tabele users
+      const deleteUserQuery = `DELETE FROM users WHERE id = $1`;
+      await client.query(deleteUserQuery, [userId]);
+
+      // Potvrdite transakciju
+      client.query('COMMIT', (err) => {
+        if (err) {
+          console.error('Error committing transaction:', err);
+          res.status(500).send('Internal server error');
+        } else {
+          res.send('Deletion was successful');
+        }
+      });
+    } catch (error) {
+      // Ako dođe do greške, poništite transakciju
+      client.query('ROLLBACK', (rollbackErr) => {
+        if (rollbackErr) {
+          console.error('Error rolling back transaction:', rollbackErr);
+        }
+        console.error('Error deleting user and child:', error);
+        res.status(500).send('Internal server error');
+      });
+    }
+  });
+});
+
 app.post('/signup', async (req, res) => {
   try {
     const { username, email, password, childName } = req.body;
@@ -100,7 +131,6 @@ app.post('/signup', async (req, res) => {
 
     // Generisanje jedinstvenog četverocifrenog koda
     const code = Math.floor(1000 + Math.random() * 9000);
-
     // Ubacivanje novog korisnika u tabelu children
     const insertChildQuery = 'INSERT INTO children (parentid, name, code) VALUES ($1, $2, $3)';
     const insertChildValues = [userId, childName, code];

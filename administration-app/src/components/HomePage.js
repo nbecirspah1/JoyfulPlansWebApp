@@ -7,32 +7,6 @@ import logo2 from '../assets/logo2.png'
 function HomePage() {
   return (
 
-   
-
-//     <div id="carouselExample" class="carousel slide">
-//     <div class="carousel-inner">
-//       <div class="carousel-item active">
- 
-//         <img src={logo1} className="d-block w-100" alt="Logo"/>
-//       </div>
-//       <div class="carousel-item">
-//       <img src={logo2} className="d-block w-100" alt="Logo"/>
-
-//       </div>
-//       <div class="carousel-item">
-//       <img src={logo1} className="d-block w-100" alt="Logo"/>
-
-//       </div>
-//     </div>
-//     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-//       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-//       <span class="visually-hidden">Previous</span>
-//     </button>
-//     <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-//       <span class="carousel-control-next-icon" aria-hidden="true"></span>
-//       <span class="visually-hidden">Next</span>
-//     </button>
-//   </div>
 
 <div id="myCarousel" className="carousel slide" data-bs-ride="carousel">
     <div className="carousel-indicators">

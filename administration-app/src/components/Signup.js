@@ -19,75 +19,83 @@ function Signup(){
   const [isLoading, setIsLoading] = useState(false);
   const validateEmail = (email) => {
     // RegEx for email validation
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const re = /^[^\s@]+@gmail\.(ba|com)$/;
     return re.test(email);
-  };
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-     // Perform validation
-     if (!validateEmail(email)) {
-      setEmailError("Unesite validan e-mail u formatu example@example.com");
-      return;
-    }
-    if (username === "") {
-      setNameError("Unesite validno ime");
-    } else {
-      setNameError("");
-    }
-    if (!email.includes("@") || !email.includes(".")) {
-      setEmailError("Unesite ispravnu email adresu");
-    } else {
-      setEmailError("");
-    }
-    if (childName === "") {
-      setChildNameError("Unesite validno ime");
-    } else {
-      setChildNameError("");
-    }
-    if (password.length < 8) {
-      setPasswordError("Lozinka mora imati najmanje 8 znakova");
-    } else {
-      setPasswordError("");
-    }
-    if (password !== passwordConfirmation) {
-      setPasswordConfirmationError("Ponovite ispravnu lozinku");
-    } else {
-      setPasswordConfirmationError("");
-    }
-    try {
-      // Poziv funkcije za registraciju korisnika
-      setIsLoading(true);
-      const userData = { username, email, password, childName };
-      const response = await signup(userData);
-      console.log('Registracija uspješna:', response.data.code);
-      setIsLoading(false);
-      // Nastavak logike nakon uspešne registracije
-      toast.success(
-        <div>
-          Uspješna registracija, <u>kod za vaše dijete je: <strong>{response.data.code}</strong></u>
-        </div>,
-        {
-          position: toast.POSITION.TOP_CENTER,
-          onClose: () => {
-            // Preusmjeravanje na /login rutu nakon što se zatvori tost
-            window.location.href = "/login";
-          }
+};
+const handleSubmit = async (event) => {
+  event.preventDefault();
+   // Perform validation
+   if (!validateEmail(email)) {
+    setEmailError("Unesite validan e-mail u formatu example@gmail.com");
+   return;
+  }
+  else{
+    setEmailError("");
+  }
+  if (username === "") {
+    setNameError("Unesite validno ime");
+    return;
+  } else {
+    setNameError("");
+  }
+  if (!email.includes("@") || !email.includes(".")) {
+    setEmailError("Unesite ispravnu email adresu");
+    return;
+  } else {
+    setEmailError("");
+  }
+  if (childName === "") {
+    setChildNameError("Unesite validno ime");
+    return;
+  } else {
+    setChildNameError("");
+  }
+  if (password.length < 8) {
+    setPasswordError("Lozinka mora imati najmanje 8 znakova");
+    return;
+  } else {
+    setPasswordError("");
+  }
+  if (password !== passwordConfirmation) {
+    setPasswordConfirmationError("Ponovite ispravnu lozinku");
+    return;
+  } else {
+    setPasswordConfirmationError("");
+  }
+  try {
+    // Poziv funkcije za registraciju korisnika
+    setIsLoading(true);
+    const userData = { username, email, password, childName };
+    const response = await signup(userData);
+    console.log('Registracija uspješna:', response.data.code);
+    setIsLoading(false);
+    // Nastavak logike nakon uspešne registracije
+    toast.success(
+      <div>
+       Uspješna registracija, <u>kod za vaše dijete je: <strong>{response.data.code}</strong></u>
+      </div>,
+      {
+        position: toast.POSITION.TOP_CENTER,
+        onClose: () => {
+          // Preusmjeravanje na /login rutu nakon što se zatvori tost
+          window.location.href = "/login";
         }
-      );
-    } catch (error) {
-      console.log('Greška prilikom registracije:', error);
-      setIsLoading(false);
+      }
+    );
+  } catch (error) {
+    console.log('Greška prilikom registracije:', error);
+    setIsLoading(false);
 
-      toast.error(
-        <div>
-          Registracija neuspješna, pokušajte ponovo
-        </div>,
-        {
-          position: toast.POSITION.TOP_CENTER,
-        }
-      );
-    }
-  };
+    toast.error(
+      <div>
+        Registracija neuspješna, pokušajte ponovo
+      </div>,
+      {
+        position: toast.POSITION.TOP_CENTER,
+      }
+    );
+  }
+};
 
     return(
      
